@@ -6,5 +6,3 @@ Les vidéos youtubes des articles sont reconnues et affichées avec le player yo
 La page commentaire n'est (malheureusement) pas optimisée, l'application se contente pour l'instant d'afficher la page web des commentaires.
 
 Les liens www.numerama.com sont reconnus et ouvert dans l'application.
-
-![Gif Presentation](https://margo.convertio.me/p/7ZDJBNw4zvyWz1ro3ghv-g/632e38ac694884e3a2681ebc0593f887/device-2017-02-17-180807.gif)
