@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#E9573F</color>
+    <color name="colorPrimaryDark">#D34E39</color>
+    <color name="colorAccent">#E9573F</color>
+    <color name="numeramaChapoColor">#454545</color>
+    <color name="numeramaBackgroundColor">#F7F7F7</color>
+</resources>

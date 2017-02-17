@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swypelayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="0px"
+    android:paddingLeft="0px"
+    android:paddingRight="0px"
+    android:paddingTop="0px"
+    android:background="@color/numeramaBackgroundColor"
+    tools:context="com.antoineraulin.numerama.readArticle">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/ScrollLinear">
+
+            <TextView
+                android:paddingTop="20dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/headlinehea"
+                android:textAppearance="@android:style/TextAppearance.Material.Large"
+                android:typeface="normal"
+                android:fontFamily="sans-serif"
+                android:textSize="24sp"
+                android:textStyle="normal|bold"
+                android:textColor="@color/numeramaChapoColor" />
+
+            <TextView
+                android:text=""
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/author"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textSize="14sp" />
+
+            <TextView
+                android:text=""
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/chapo"
+                android:textAppearance="@android:style/TextAppearance.Material.Medium"
+                android:textColor="@color/numeramaChapoColor"
+                android:textSize="20sp" />
+        </LinearLayout>
+    </ScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>
