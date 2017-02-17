@@ -8,4 +8,4 @@ La page commentaire n'est (malheureusement) pas optimisée, l'application se con
 Les liens www.numerama.com sont reconnus et ouvert dans l'application.
 
 ##Version 1.0
-  Télécharger l'application: [numerama.apk](http://github.com)
+  Télécharger l'application: [numerama.apk](https://github.com/antoineraulin/Application-Numerama/raw/master/numerama.apk)
