@@ -7,9 +7,11 @@ La page commentaire n'est (malheureusement) pas optimisée, l'application se con
 
 Les liens www.numerama.com sont reconnus et ouvert dans l'application.
 
+##Version 1.1
+  Changelog : lorsque vous cliquez sur une image dans un article elle s'affiche maintenant en pleine écran et vous avez la possibilité de zommer dans l'image.
+  Télécharger l'application: [numerama.apk](https://github.com/antoineraulin/Application-Numerama/raw/master/numerama.1.1.apk) (4.8MB)
+
 ##Version 1.0
   Télécharger l'application: [numerama.apk](https://github.com/antoineraulin/Application-Numerama/raw/master/numerama.apk) (5MB)
   
-##Version 1.1
-  Changelog : lorsque vous cliquez sur une image dans un article elle s'affiche maintenant en pleine écran et vous avez la possibilité de zommer dans l'image.
-  Télécharger l'application: [numerama.apk](https://github.com/antoineraulin/Application-Numerama/raw/master/numerama.1.1.apk) (5MB)
+
