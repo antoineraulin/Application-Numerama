@@ -19,42 +19,100 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?android:selectableItemBackground"
         android:orientation="vertical">
 
         <!-- Les CardView agissent comme des FrameLayout,
          pour avoir une organisation verticale nous devons
          donc rajouter un LinearLayout -->
 
-        <ImageView
-            android:id="@+id/image"
+        <LinearLayout
+            android:id="@+id/descLa"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            tools:src="@drawable/parisguidetower" />
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/text"
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="98dp"
+                android:layout_height="130dp"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/parisguidetower" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.92"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:background="?android:selectableItemBackground"
+                    android:fontFamily="sans-serif"
+                    android:paddingBottom="0dp"
+                    android:paddingEnd="10dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingTop="10dp"
+                    android:textColor="#333"
+                    android:textSize="13dp"
+                    android:textStyle="bold"
+                    tools:text="Parisvkoqprokvqeùrokvqùpkvrqpùkvrpeorkvùpkervpùqkervùpqkoerùvkoeùvkekrùazdzezedzedzedzedzedantoinezeovkqùvkoqùpkv4" />
+
+                <TextView
+                    android:id="@+id/description"
+                    android:layout_width="match_parent"
+                    android:background="?android:selectableItemBackground"
+                    android:layout_height="59dp"
+                    android:layout_weight="2.52"
+                    android:paddingBottom="10dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingTop="-2dp"
+                    android:text="description"
+                    android:textSize="13dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?android:selectableItemBackground"
-            android:padding="15dp"
-            tools:text="Paris"
-            android:fontFamily="sans-serif"
-            android:textColor="#333"
-            android:textSize="18sp" />
-        <TextView
-            android:id="@+id/time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/numeramaBackgroundColor"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:paddingRight="15dp"
-            android:paddingLeft="15dp"
-            tools:text="Il y a ..."
-            android:fontFamily="sans-serif"
-            android:textColor="@color/numeramaChapoColor"
-            android:textSize="10sp" />
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/cat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/numeramaBackgroundColor"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="10dp"
+                android:text="Categorie"
+                android:textColor="#333"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/numeramaBackgroundColor"
+                android:fontFamily="sans-serif"
+                android:paddingBottom="10dp"
+                android:paddingLeft="2dp"
+                android:paddingRight="15dp"
+                android:paddingTop="10dp"
+                android:textColor="@color/numeramaChapoColor"
+                android:textSize="10sp"
+                tools:text="Il y a ..." />
+        </LinearLayout>
+
     </LinearLayout>
 
 </android.support.v7.widget.CardView>
