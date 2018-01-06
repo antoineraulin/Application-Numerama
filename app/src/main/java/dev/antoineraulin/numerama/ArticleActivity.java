@@ -1,6 +1,7 @@
 package dev.antoineraulin.numerama;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -8,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -16,6 +18,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -24,11 +27,15 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bluejamesbond.text.DocumentView;
+import com.bluejamesbond.text.style.TextAlignment;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
@@ -49,21 +56,38 @@ public class ArticleActivity extends AppCompatActivity {
     String artTitle = null;
     String artUrl = null;
     ProgressDialog dialog;
-
+    ImageView background;
+    int[] avrColor;
+    AppBarLayout appBarLayout;
+    CollapsingToolbarLayout collapsingToolbarLayout;
+    Context theContext;
+    Boolean dev = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article);
-         dialog = ProgressDialog.show(ArticleActivity.this, "",
+        dialog = ProgressDialog.show(ArticleActivity.this, "",
                 "Chargement de votre article...", true);
         final Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("");
-        final int[] avrColor = new int[1];
+       avrColor = new int[1];
         setSupportActionBar(toolbar);
+        theContext = this;
+        Intent appLinkIntent = getIntent();
+        String appLinkAction = appLinkIntent.getAction();
+        Uri appLinkData = appLinkIntent.getData();
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+        appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
+        background = findViewById(R.id.ivBigImage);
+        if (String.valueOf(appLinkData).contains("numerama.com")) {
+            String url = String.valueOf(appLinkData);
+            artUrl = url;
+            getArticle(artUrl, true);
+        }else{
+
         final String title = getIntent().getExtras().getString("title");
-        final CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
-        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
-        final ImageView background = findViewById(R.id.ivBigImage);
+
+
         final String backgroundUrl = getIntent().getExtras().getString("image");
         backUrl = backgroundUrl;
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
@@ -93,7 +117,7 @@ public class ArticleActivity extends AppCompatActivity {
                     canvas.drawRect(rect, paint);
                     background.setImageBitmap(image);
                     isShow = true;
-                } else if(isShow) {
+                } else if (isShow) {
                     collapsingToolbarLayout.setTitle(" ");//carefull there should a space between double quote otherwise it wont work
                     Ion.with(background)
                             .load(backgroundUrl);
@@ -116,7 +140,9 @@ public class ArticleActivity extends AppCompatActivity {
                     public void onCompleted(Exception e, Bitmap result) {
                         Bitmap bitmap = result;
                         int pixelSpacing = 1;
-                        int R = 0; int G = 0; int B = 0;
+                        int R = 0;
+                        int G = 0;
+                        int B = 0;
                         int height = bitmap.getHeight();
                         int width = bitmap.getWidth();
                         int n = 0;
@@ -135,12 +161,12 @@ public class ArticleActivity extends AppCompatActivity {
                         avrColor[0] = Color.rgb(R / n, G / n, B / n);
                     }
                 });
-        getArticle(url);
-
+        getArticle(url, false);
+    }
     }
 
 
-    private void getArticle(final String url){
+    private void getArticle(final String url,final Boolean isIntent){
         Log.e("info", "getArticle() started");
         new Thread(new Runnable() {
             @Override
@@ -159,38 +185,123 @@ public class ArticleActivity extends AppCompatActivity {
                                 titlee = StringUtils.substringBefore(titlee, " - ");
                                 artTitle = titlee;
                                 Elements authorElem = doc.select("meta[property=author]");
+                                if(isIntent){
+                                    Elements backgroundElement = doc.select(".post-cover");
+                                    if(backgroundElement != null){
+                                        Log.d("BackgroundIntentElement", backgroundElement.toString());
+                                        String backgroundUrl = backgroundElement.toString().substring(backgroundElement.toString().indexOf("image:url(") + 10, backgroundElement.toString().indexOf(")"));
+                                        backUrl = backgroundUrl;
+                                        Ion.with((ImageView) findViewById(R.id.ivBigImage))
+                                                .load(backgroundUrl);
+                                        Ion.with(getApplicationContext()).load(backgroundUrl).withBitmap().asBitmap()
+                                                .setCallback(new FutureCallback<Bitmap>() {
+                                                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                                                    @Override
+                                                    public void onCompleted(Exception e, Bitmap result) {
+                                                        Bitmap bitmap = result;
+                                                        int pixelSpacing = 1;
+                                                        int R = 0;
+                                                        int G = 0;
+                                                        int B = 0;
+                                                        int height = bitmap.getHeight();
+                                                        int width = bitmap.getWidth();
+                                                        int n = 0;
+                                                        int[] pixels = new int[width * height];
+                                                        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+                                                        for (int i = 0; i < pixels.length; i += pixelSpacing) {
+                                                            int color = pixels[i];
+                                                            R += Color.red(color);
+                                                            G += Color.green(color);
+                                                            B += Color.blue(color);
+                                                            n++;
+                                                        }
+                                                        Window window = getWindow();
+                                                        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                                                        window.setStatusBarColor(Color.rgb(R / n, G / n, B / n));
+                                                        avrColor[0] = Color.rgb(R / n, G / n, B / n);
+                                                    }
+                                                });
+                                    }
+                                    appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+                                        boolean isShow = false;
+                                        int scrollRange = -1;
+
+                                        @Override
+                                        public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                                            if (scrollRange == -1) {
+                                                scrollRange = appBarLayout.getTotalScrollRange();
+                                            }
+                                            if (scrollRange + verticalOffset == 0) {
+                                                collapsingToolbarLayout.setTitle(artTitle);
+                                                Rect rect = new Rect(0, 0, 1, 1);
+
+// You then create a Bitmap and get a canvas to draw into it
+                                                Bitmap image = Bitmap.createBitmap(rect.width(), rect.height(), Bitmap.Config.ARGB_8888);
+                                                Canvas canvas = new Canvas(image);
+
+//You can get an int value representing an argb color by doing so. Put 1 as alpha by default
+
+//Paint holds information about how to draw shapes
+                                                Paint paint = new Paint();
+                                                paint.setColor(avrColor[0]);
+
+// Then draw your shape
+                                                canvas.drawRect(rect, paint);
+                                                background.setImageBitmap(image);
+                                                isShow = true;
+                                            } else if (isShow) {
+                                                collapsingToolbarLayout.setTitle(" ");//carefull there should a space between double quote otherwise it wont work
+                                                Ion.with(background)
+                                                        .load(backUrl);
+                                                isShow = false;
+                                            }
+                                        }
+                                    });
+                                }
                                 if(authorElem != null){
                                     createTextView(Html.fromHtml("<b> De "+authorElem.toString()+"</b>".replace("&NBSP;", " ")),"#d34e39");
                                 }
                                 createTitleTextView(titlee, "#e9573f", dpToPixel(7));
                                 Element article = doc.select("article").get(0);
                                 Elements items = article.select("p,h2,ul,h4,figure,blockquote,.startup-preview");
-
+                                int time = 0;
+                                String before = "";
                                 for (Element item : items) {
+                                    time++;
+                                    Log.d("item",item.toString());
                                     String data = item.toString();
                                     if(item.hasClass("chapo")){
+                                        createTextView("Chapo"+time,"#FF0000");
                                         data = "<b>"+data+"</b>";
+                                        createTextView(Html.fromHtml(data.replace("\"//www.numerama", "\"http://www.numerama")));
                                     }
-                                    if(item.toString().startsWith("<h2>")){
+                                    else if(item.toString().startsWith("<h2>")){
+                                        createTextView("<H2>"+time,"#FF0000");
                                         data = data.toUpperCase();
                                         if(data.contains("<SPAN")){
                                         String span = getStringBetween(data, "<SPAN", "</SPAN>");
                                         data = data.replace("<SPAN"+span+"</SPAN>", "");}
                                         createTextView(Html.fromHtml(data.replace("&NBSP;", " ")),"#d34e39");
                                     }else if(item.toString().startsWith("<h4>")){
+                                        createTextView("H4"+time,"#FF0000");
                                         if(data.contains("<span")){
                                             String span = getStringBetween(data, "<span", "</span>");
                                             data = data.replace("<span"+span+"</span>", "");}
-                                        createTextView(Html.fromHtml(data.replace("&nbsp;", " ")),"#444444");
+
+                                        if (!(before == "startupPreview")) createTextView(Html.fromHtml(data.replace("&nbsp;", " ")),"#444444");
+                                        if(before == "startupPreview") before = "";
                                     }
                                     else if(item.toString().startsWith("<ul") && !item.toString().contains("tags-list")){
+                                        createTextView("UL"+time,"#FF0000");
                                         Document list = Jsoup.parse(item.toString());
                                         Elements listItems = list.select("li");
                                         for (Element listItem : listItems){
-                                            if(!listItem.toString().contains("numerama.com/tag")) createListTextView(Html.fromHtml(listItem.toString()));
+                                            if(!listItem.toString().contains("numerama.com/tag") && !listItem.toString().contains("https://www.numerama.com/startup")) createListTextView(Html.fromHtml(listItem.toString()));
                                         }
                                     }
                                     else if(item.toString().startsWith("<div class=\"startup-preview")){
+                                        before = "startupPreview";
+                                        createTextView("<div class=\"startup-preview"+time,"#FF0000");
                                         String html = item.toString();
                                         String color = getStringBetween(html, "style=\"background-color:", "\">");
                                         String image = getStringBetween(html, "<img src=\"", "\"> </a>");
@@ -223,17 +334,34 @@ public class ArticleActivity extends AppCompatActivity {
 
                                         createStarpupView(finalHTML, dpToPixel(90));
                                     }
+                                    else if(item.toString().contains("<blockquote class=\"instagram-media\"")){
+                                        before = "insta";
+                                        createTextView("Insta"+time,"#FF0000");
+                                        String blockHTML = item.toString() +"\n<p><script async defer src=\"https://platform.instagram.com/en_US/embeds.js\"></script></p>";
+                                        createInstagramView(blockHTML,dpToPixel(700));
+                                    }
+                                    else if(item.toString().contains("<blockquote class=\"twitter-tweet\"")){
+                                        before = "twitter";
+                                        createTextView("Twitter"+time,"#FF0000");
+                                        String blockHTML = item.toString() +"\n<p><script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script></p>";
+                                        createTwitterView(blockHTML,dpToPixel(400));
+                                    }
                                     else if(item.toString().startsWith("<blockquote>")){
+                                        createTextView("<blockquote>"+time,"#FF0000");
                                         String quote = Html.fromHtml(item.toString()).toString();
                                         quote = quote.toUpperCase();
                                         if(quote.contains("«")) quote = quote;
                                         else quote = "<i>« "+quote+" »</i>";
                                         createQuoteTextView(Html.fromHtml(quote.replace("&NBSP;", " ")),"#e9573f", dpToPixel(11));
-                                    }else if(item.toString().startsWith("<blockquote")){
+                                    }
+
+                                    else if(item.toString().startsWith("<blockquote")){
+                                        createTextView("<blockquote"+time,"#FF0000");
                                         String quote = Html.fromHtml(item.toString()).toString();
                                         quote = "<i>“ "+quote+" ”</i>";
                                         //createQuoteTextView(Html.fromHtml(quote.replace("&NBSP;", " ")),"#e9573f", dpToPixel(9));
                                     }else if(item.toString().startsWith("<figure") && item.toString().contains("<iframe")){
+                                        createTextView("<figure && iframe"+time,"#FF0000");
                                         Pattern pattern2 = Pattern.compile("src=\"(.*?)\"");
                                         Matcher matcher2 = pattern2.matcher(item.toString());
                                         while (matcher2.find()) {
@@ -245,6 +373,7 @@ public class ArticleActivity extends AppCompatActivity {
                                         }
                                     }
                                     else if(item.toString().startsWith("<figure")){
+                                        createTextView("<figure"+time,"#FF0000");
                                         Pattern pattern2 = Pattern.compile("src=\"(.*?)\"");
                                         Matcher matcher2 = pattern2.matcher(item.toString());
                                         while (matcher2.find()) {
@@ -254,6 +383,7 @@ public class ArticleActivity extends AppCompatActivity {
                                         }
                                     }
                                     else if(item.toString().contains("<iframe")){
+                                        createTextView("<iframe"+time,"#FF0000");
                                         Pattern pattern2 = Pattern.compile("src=\"(.*?)\"");
                                         Matcher matcher2 = pattern2.matcher(item.toString());
                                         while (matcher2.find()) {
@@ -265,18 +395,23 @@ public class ArticleActivity extends AppCompatActivity {
                                         }
                                     }
                                     else if(item.toString().contains("<img")){
+                                        createTextView("<img"+time,"#FF0000");
                                         Pattern pattern2 = Pattern.compile("src=\"(.*?)\"");
                                         Matcher matcher2 = pattern2.matcher(item.toString());
                                         while (matcher2.find()) {
-                                            String url = "http:" + matcher2.group(1);
+                                            String url = matcher2.group(1);
                                             System.out.println("found normal image: "+url);
                                             createImageView(matcher2.group(1));
                                         }
-                                    }else{
-
-                                        if(!data.contains("<li") && !data.contains("class=\"subtitle") && !data.contains("<h4>"+startupTitle+"</h4>") && !data.contains("class=\"subtitle") && !data.contains("Partager sur les réseaux sociaux")) createTextView(Html.fromHtml(data.replace("\"//www.numerama", "\"http://www.numerama")));
                                     }
-                                    Log.d("items", data);
+
+                                    else{
+                                        createTextView("Else"+time,"#FF0000");
+                                        if(!data.contains("<li") && !data.contains("class=\"subtitle") && !data.contains("<h4>"+startupTitle+"</h4>") && !data.contains("class=\"subtitle") && !data.contains("Partager sur les réseaux sociaux") && !data.startsWith("<blockquote") && !data.contains("https://www.numerama.com/startup")
+                                        && !(before == "insta") && !(before == "insta2") && !(before == "twitter") && !(before == "twitter2")) createTextView(Html.fromHtml(data.replace("\"//www.numerama", "\"http://www.numerama")));
+                                        if(before == "insta"){ before = "insta2";}else if(before == "insta2"){ before = "";}
+                                        if(before == "twitter"){ before = "twitter2";}else if(before == "twitter2"){ before = "";}
+                                    }
 
                                 }
 
@@ -361,6 +496,7 @@ public class ArticleActivity extends AppCompatActivity {
         textView.setPadding(dpToPixel(16), 0, dpToPixel(16), dpToPixel(-27));
         linearLayout.addView(textView);
     }
+
     private void createListTextView(Spanned text){
         LinearLayout linearLayout = findViewById(R.id.NestedViewLinear);
         TextView textView = new TextView(this);
@@ -382,6 +518,17 @@ public class ArticleActivity extends AppCompatActivity {
         textView.setPadding(dpToPixel(16), 0, dpToPixel(16), dpToPixel(-27));
         linearLayout.addView(textView);
     }
+    private void createTextView(String text, String hexcolor){
+        if(dev){
+        LinearLayout linearLayout = findViewById(R.id.NestedViewLinear);
+        TextView textView = new TextView(this);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+        textView.setText(text);
+        textView.setTextColor(Color.parseColor(hexcolor));
+        textView.setTextAlignment(View.TEXT_ALIGNMENT_INHERIT);
+        textView.setPadding(dpToPixel(16), 0, dpToPixel(16), dpToPixel(0));
+        linearLayout.addView(textView);}
+    }
     private void createQuoteTextView(Spanned text, String hexcolor,int textSize){
         LinearLayout linearLayout = findViewById(R.id.NestedViewLinear);
         TextView textView = new TextView(this);
@@ -397,19 +544,30 @@ public class ArticleActivity extends AppCompatActivity {
     }
 
     private void createImageView(String url){
-        url = "http:"+url;
+        url = url;
+        if(url.startsWith("http")){
+
+        }else{
+            url = "http:"+url;
+        }
         Log.d("image url", url);
         LinearLayout linearLayout = findViewById(R.id.NestedViewLinear);
         PhotoView imageView = new PhotoView(this);
-        imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPixel(200)));
+        imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPixel(240)));
         Ion.with(imageView)
                 .load(url);
-        imageView.setPadding(dpToPixel(6), 0, dpToPixel(16), dpToPixel(6));
+
+        imageView.setPadding(dpToPixel(6), 0, dpToPixel(6), dpToPixel(6));
 
         linearLayout.addView(imageView);
     }
     private void createFigureImageView(String url){
-        url = "http:"+url;
+        url = url;
+        if(url.startsWith("http")){
+
+        }else{
+            url = "http:"+url;
+        }
         Log.d("image url", url);
         LinearLayout linearLayout = findViewById(R.id.NestedViewLinear);
         PhotoView imageView = new PhotoView(this);
@@ -472,6 +630,35 @@ public class ArticleActivity extends AppCompatActivity {
 
         linearLayout.addView(webView);
     }
+    private void createInstagramView(String html, int viewSize){
+        LinearLayout linearLayout = findViewById(R.id.NestedViewLinear);
+        final WebView webView = new WebView(this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(dpToPixel(16), dpToPixel(10), dpToPixel(16), dpToPixel(5));
+        webView.setLayoutParams(params);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.loadData(html, "text/html", "UTF-8");
+        webView.setBackgroundColor(Color.TRANSPARENT);
+        linearLayout.addView(webView);
+    }
+
+    private void createTwitterView(String html, int viewSize){
+        LinearLayout linearLayout = findViewById(R.id.NestedViewLinear);
+        final WebView webView = new WebView(this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(dpToPixel(16), dpToPixel(10), dpToPixel(16), dpToPixel(5));
+        webView.setLayoutParams(params);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.loadData(html, "text/html", "UTF-8");
+        webView.setBackgroundColor(Color.TRANSPARENT);
+        linearLayout.addView(webView);
+    }
 
     private void createTitleTextView(String text, String hexcolor, int textSize){
         LinearLayout linearLayout = findViewById(R.id.NestedViewLinear);
@@ -492,4 +679,15 @@ public class ArticleActivity extends AppCompatActivity {
         int pixels = (int) (dp * scale + 0.5f);
         return pixels;
     }
+    @JavascriptInterface
+    public void webResize(final float height,final WebView tWeb) {
+        ArticleActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("resize", "started");
+                tWeb.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) (height * getResources().getDisplayMetrics().density)));
+            }
+        });
+    }
 }
+

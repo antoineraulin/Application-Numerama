@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private List<MyObject> articles = new ArrayList<>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)  {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
         swipeContainer.setColorSchemeResources(R.color.colorPrimary,
-                R.color.colorPrimaryDark );
+                R.color.colorPrimaryDark);
         toolbar.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -79,10 +79,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
         swipeContainer.setRefreshing(true);
         getFeed();
+        // ATTENTION: This was auto-generated to handle app links.
+        Intent appLinkIntent = getIntent();
+        String appLinkAction = appLinkIntent.getAction();
+        Uri appLinkData = appLinkIntent.getData();
+        handleIntent(getIntent());
+
+
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////:PRIVATE FUNCTION:///////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        String appLinkAction = intent.getAction();
+        Uri appLinkData = intent.getData();
+        Log.d("URI intent", String.valueOf(appLinkData));
+        try{
+        if(String.valueOf(appLinkData).contains("numerama.com")){
+            Context context = getApplicationContext();
+            Intent theIntent=new Intent(getApplicationContext(),ArticleActivity.class);
+            theIntent.putExtra("link", appLinkData.toString());
+            theIntent.putExtra("isIntent", true);
+            context.startActivity(intent);
+        }}catch (Error e){
+            Log.e("HandleIntent", String.valueOf(e));
+        }
+    }
+
     private void getFeed(){
         articles.clear();
         Ion.with(getApplicationContext())
@@ -309,5 +338,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 
 }
